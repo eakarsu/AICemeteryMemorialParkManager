@@ -1,0 +1,111 @@
+{
+  "project": "AICemeteryMemorialParkManager",
+  "marker": "// === Batch 01 Gaps & Frontend Mounts ===",
+  "features": [
+    {
+      "slug": "agentic-memorial-concierge-that-drafts-obituary-pl",
+      "component": "AgenticMemorialConciergeThatDraftsObituaryPlPage",
+      "label": "Agentic memorial concierge that drafts obituary, plans service, and notifies attendees",
+      "endpoint": "/api/cf-agentic-memorial-concierge-that-drafts-obituary-pl",
+      "kind": "cfs"
+    },
+    {
+      "slug": "rag-over-genealogical-records-and-family-submissio",
+      "component": "RagOverGenealogicalRecordsAndFamilySubmissioPage",
+      "label": "RAG over genealogical records and family submissions to enrich memorial pages",
+      "endpoint": "/api/cf-rag-over-genealogical-records-and-family-submissio",
+      "kind": "cfs"
+    },
+    {
+      "slug": "real-time-maintenance-alerts-irrigation-mowing-van",
+      "component": "RealTimeMaintenanceAlertsIrrigationMowingVanPage",
+      "label": "Real-time maintenance alerts (irrigation, mowing, vandalism) with photo evidence",
+      "endpoint": "/api/cf-real-time-maintenance-alerts-irrigation-mowing-van",
+      "kind": "cfs"
+    },
+    {
+      "slug": "white-label-deployment-for-cemetery-operator-netwo",
+      "component": "WhiteLabelDeploymentForCemeteryOperatorNetwoPage",
+      "label": "White-label deployment for cemetery operator networks",
+      "endpoint": "/api/cf-white-label-deployment-for-cemetery-operator-netwo",
+      "kind": "cfs"
+    },
+    {
+      "slug": "no-ai-plot-grave-availability-optimization",
+      "component": "NoAiPlotGraveAvailabilityOptimizationPage",
+      "label": "No AI plot/grave-availability optimization",
+      "endpoint": "/api/gap-no-ai-plot-grave-availability-optimization",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-ai-grief-support-chatbot-for-families",
+      "component": "NoAiGriefSupportChatbotForFamiliesPage",
+      "label": "No AI grief-support chatbot for families",
+      "endpoint": "/api/gap-no-ai-grief-support-chatbot-for-families",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-ai-restoration-estimate-from-headstone-photos",
+      "component": "NoAiRestorationEstimateFromHeadstonePhotosPage",
+      "label": "No AI restoration estimate from headstone photos",
+      "endpoint": "/api/gap-no-ai-restoration-estimate-from-headstone-photos",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-ai-memorial-video-generation",
+      "component": "NoAiMemorialVideoGenerationPage",
+      "label": "No AI memorial-video generation",
+      "endpoint": "/api/gap-no-ai-memorial-video-generation",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-ai-obituary-auto-generation-from-intake-form",
+      "component": "NoAiObituaryAutoGenerationFromIntakeFormPage",
+      "label": "No AI obituary auto-generation from intake form",
+      "endpoint": "/api/gap-no-ai-obituary-auto-generation-from-intake-form",
+      "kind": "gap"
+    },
+    {
+      "slug": "only-5-frontend-pages-despite-24-crud-entities-maj",
+      "component": "Only5FrontendPagesDespite24CrudEntitiesMajPage",
+      "label": "Only 5 frontend pages despite 24+ CRUD entities \u2014 major UI gap",
+      "endpoint": "/api/gap-only-5-frontend-pages-despite-24-crud-entities-maj",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-gis-interactive-plot-map",
+      "component": "NoGisInteractivePlotMapPage",
+      "label": "No GIS / interactive plot map",
+      "endpoint": "/api/gap-no-gis-interactive-plot-map",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-webhook-outbound-api",
+      "component": "NoWebhookOutboundApiPage",
+      "label": "No webhook outbound API",
+      "endpoint": "/api/gap-no-webhook-outbound-api",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-payment-gateway-integration-for-pre-need-contra",
+      "component": "NoPaymentGatewayIntegrationForPreNeedContraPage",
+      "label": "No payment-gateway integration for pre-need contracts (PaymentPlan stored, not charged)",
+      "endpoint": "/api/gap-no-payment-gateway-integration-for-pre-need-contra",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-public-facing-memorial-page-builder",
+      "component": "NoPublicFacingMemorialPageBuilderPage",
+      "label": "No public-facing memorial page builder",
+      "endpoint": "/api/gap-no-public-facing-memorial-page-builder",
+      "kind": "gap"
+    },
+    {
+      "slug": "no-funeral-home-coroner-system-integration",
+      "component": "NoFuneralHomeCoronerSystemIntegrationPage",
+      "label": "No funeral-home / coroner system integration",
+      "endpoint": "/api/gap-no-funeral-home-coroner-system-integration",
+      "kind": "gap"
+    }
+  ]
+}

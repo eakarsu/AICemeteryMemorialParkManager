@@ -65,6 +65,18 @@ export const ai = {
   genealogy: (data) => api.post('/ai/genealogy', data),
   memorialPage: (data) => api.post('/ai/memorial-page', data),
   bereavement: (data) => api.post('/ai/bereavement', data),
+  // New AI features
+  virtualTour: (data) => api.post('/ai/virtual-tour', data),
+  monumentDesigner: (data) => api.post('/ai/monument-designer', data),
+  burialSiteRecommender: (data) => api.post('/ai/burial-site-recommender', data),
+  legacyDocumentAdvisor: (data) => api.post('/ai/legacy-document-advisor', data),
+  familyReunion: (data) => api.post('/ai/family-reunion', data),
+  perpetualCareAllocation: (data) => api.post('/ai/perpetual-care-allocation', data),
+  historicalArchive: (data) => api.post('/ai/historical-archive', data),
+  commemorativeEvent: (data) => api.post('/ai/commemorative-event', data),
+  // History + feedback
+  results: (params = {}) => api.get('/ai/results', { params }),
+  feedback: (data) => api.post('/ai/feedback', data),
 };
 
 export default api;

@@ -1,12 +1,45 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
+const { aiRateLimiter } = require('../middleware/rateLimiter');
+const { sequelize } = require('../models');
+const { DataTypes } = require('sequelize');
 const router = express.Router();
 
 router.use(authMiddleware);
+router.use(aiRateLimiter);
+
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022';
+const SYSTEM_PROMPT = 'You are a compassionate memorial park management AI assistant. Help with obituary writing, memorial planning, and cemetery operations with dignity and professionalism.';
+
+// ─── AI Output persistence model (lazy-defined) ──────────────────────────────
+
+let AiOutput;
+function getAiOutputModel() {
+  if (AiOutput) return AiOutput;
+  if (sequelize.models && sequelize.models.AiOutput) {
+    AiOutput = sequelize.models.AiOutput;
+    return AiOutput;
+  }
+  AiOutput = sequelize.define('AiOutput', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    user_id: { type: DataTypes.INTEGER },
+    type: { type: DataTypes.STRING, allowNull: false },
+    input_data: { type: DataTypes.TEXT },
+    output_text: { type: DataTypes.TEXT },
+    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  }, {
+    tableName: 'ai_outputs',
+    timestamps: false
+  });
+  sequelize.sync(); // ensure table exists
+  return AiOutput;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function callOpenRouter(messages, maxTokens = 1024) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  const model = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
+  const model = OPENROUTER_MODEL;
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -16,12 +49,7 @@ async function callOpenRouter(messages, maxTokens = 1024) {
       'HTTP-Referer': 'http://localhost:3000',
       'X-Title': 'Cemetery Memorial Park Manager'
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      max_tokens: maxTokens,
-      temperature: 0.7
-    })
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.7 })
   });
 
   if (!response.ok) {
@@ -33,15 +61,68 @@ async function callOpenRouter(messages, maxTokens = 1024) {
   return data.choices[0].message.content;
 }
 
-// 1. Obituary Drafting
+async function saveAiOutput(userId, type, inputData, outputText) {
+  try {
+    const Model = getAiOutputModel();
+    await Model.create({
+      user_id: userId,
+      type,
+      input_data: typeof inputData === 'string' ? inputData : JSON.stringify(inputData),
+      output_text: outputText,
+      created_at: new Date()
+    });
+  } catch (err) {
+    console.warn('[AI] Failed to save output to DB:', err.message);
+  }
+}
+
+function validateRequired(body, fields) {
+  const missing = fields.filter(f => body[f] === undefined || body[f] === null || body[f] === '');
+  return missing;
+}
+
+// ─── GET /api/ai/history ──────────────────────────────────────────────────────
+
+router.get('/history', async (req, res) => {
+  try {
+    const Model = getAiOutputModel();
+    const { page = 1, limit = 20, type } = req.query;
+    const offset = (Number(page) - 1) * Number(limit);
+
+    const where = { user_id: req.user.id };
+    if (type) where.type = type;
+
+    const { count, rows } = await Model.findAndCountAll({
+      where,
+      order: [['created_at', 'DESC']],
+      limit: Number(limit),
+      offset
+    });
+
+    res.json({
+      history: rows,
+      pagination: {
+        total: count,
+        page: Number(page),
+        limit: Number(limit),
+        total_pages: Math.ceil(count / Number(limit))
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── 1. Obituary Drafting ─────────────────────────────────────────────────────
+
 router.post('/obituary', async (req, res) => {
   try {
     const { deceased_name, birth_date, death_date, biography, family_members, achievements, tone } = req.body;
+    const missing = validateRequired(req.body, ['deceased_name']);
+    if (missing.length) return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
     const messages = [
-      {
-        role: 'system',
-        content: 'You are a compassionate obituary writer for a cemetery and memorial park. Write heartfelt, dignified obituaries that honor the deceased. Format with clear paragraphs. Be respectful and warm.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' Write heartfelt, dignified obituaries that honor the deceased. Format with clear paragraphs. Be respectful and warm.' },
       {
         role: 'user',
         content: `Please write a professional obituary with the following details:
@@ -55,21 +136,23 @@ Desired Tone: ${tone || 'Warm and respectful'}`
       }
     ];
     const result = await callOpenRouter(messages, 1500);
+    await saveAiOutput(req.user.id, 'obituary', req.body, result);
     res.json({ result, type: 'obituary' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 2. Memorial Inscription Suggestions
+// ─── 2. Memorial Inscription Suggestions ─────────────────────────────────────
+
 router.post('/inscription', async (req, res) => {
   try {
     const { deceased_name, relationship, personality, interests, style } = req.body;
+    const missing = validateRequired(req.body, ['deceased_name']);
+    if (missing.length) return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
     const messages = [
-      {
-        role: 'system',
-        content: 'You are an expert at crafting meaningful memorial inscriptions for headstones and monuments. Provide multiple options ranging from traditional to contemporary. Each inscription should be concise yet meaningful.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' You are an expert at crafting meaningful memorial inscriptions for headstones and monuments. Provide multiple options ranging from traditional to contemporary. Each inscription should be concise yet meaningful.' },
       {
         role: 'user',
         content: `Please suggest 5 memorial inscriptions for:
@@ -83,21 +166,20 @@ Please provide varied options from short phrases to longer verses.`
       }
     ];
     const result = await callOpenRouter(messages, 1200);
+    await saveAiOutput(req.user.id, 'inscription', req.body, result);
     res.json({ result, type: 'inscription' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 3. Grounds Maintenance Prediction
+// ─── 3. Grounds Maintenance Prediction ───────────────────────────────────────
+
 router.post('/maintenance-prediction', async (req, res) => {
   try {
     const { season, weather_forecast, location, current_conditions, upcoming_events } = req.body;
     const messages = [
-      {
-        role: 'system',
-        content: 'You are a grounds maintenance expert for cemetery and memorial parks. Provide detailed, actionable maintenance predictions and recommendations based on weather and seasonal conditions. Include specific tasks, timelines, and priorities.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' You are a grounds maintenance expert for cemetery and memorial parks. Provide detailed, actionable maintenance predictions.' },
       {
         role: 'user',
         content: `Please provide grounds maintenance predictions and recommendations:
@@ -116,21 +198,23 @@ Please include:
       }
     ];
     const result = await callOpenRouter(messages, 1500);
+    await saveAiOutput(req.user.id, 'maintenance_prediction', req.body, result);
     res.json({ result, type: 'maintenance_prediction' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 4. Genealogy Research Assistance
+// ─── 4. Genealogy Research Assistance ────────────────────────────────────────
+
 router.post('/genealogy', async (req, res) => {
   try {
     const { person_name, birth_year, death_year, known_relatives, location, additional_info } = req.body;
+    const missing = validateRequired(req.body, ['person_name']);
+    if (missing.length) return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
     const messages = [
-      {
-        role: 'system',
-        content: 'You are a genealogy research expert specializing in cemetery records and family history. Provide research strategies, potential record sources, and help interpret historical records. Be thorough and methodical in your suggestions.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' You are a genealogy research expert specializing in cemetery records and family history.' },
       {
         role: 'user',
         content: `Please provide genealogy research guidance for:
@@ -139,32 +223,27 @@ Birth Year: ${birth_year || 'Unknown'}
 Death Year: ${death_year || 'Unknown'}
 Known Relatives: ${known_relatives || 'None known'}
 Location: ${location || 'Not specified'}
-Additional Info: ${additional_info || 'None'}
-
-Please suggest:
-1. Research strategy and approach
-2. Recommended record sources to search
-3. Possible family connections to investigate
-4. Historical context for the time period
-5. Tips for verifying information found`
+Additional Info: ${additional_info || 'None'}`
       }
     ];
     const result = await callOpenRouter(messages, 1500);
+    await saveAiOutput(req.user.id, 'genealogy', req.body, result);
     res.json({ result, type: 'genealogy' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 5. Virtual Memorial Page Content
+// ─── 5. Virtual Memorial Page Content ────────────────────────────────────────
+
 router.post('/memorial-page', async (req, res) => {
   try {
     const { deceased_name, dates, biography, photos_description, family_message } = req.body;
+    const missing = validateRequired(req.body, ['deceased_name']);
+    if (missing.length) return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
     const messages = [
-      {
-        role: 'system',
-        content: 'You are a digital memorial content creator. Create beautiful, moving virtual memorial page content that celebrates the life of the deceased. Include sections for biography, tributes, and remembrances. Format with clear headings and sections.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' You are a digital memorial content creator. Create beautiful, moving virtual memorial page content.' },
       {
         role: 'user',
         content: `Please create virtual memorial page content for:
@@ -183,40 +262,31 @@ Please create:
       }
     ];
     const result = await callOpenRouter(messages, 1500);
+    await saveAiOutput(req.user.id, 'memorial_page', req.body, result);
     res.json({ result, type: 'memorial_page' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 6. Bereavement Resource Recommendations
+// ─── 6. Bereavement Resource Recommendations ──────────────────────────────────
+
 router.post('/bereavement', async (req, res) => {
   try {
     const { relationship, time_since_loss, age_group, specific_needs } = req.body;
     const messages = [
-      {
-        role: 'system',
-        content: 'You are a compassionate bereavement counselor providing resource recommendations. Offer sensitive, helpful guidance and resources for those grieving. Be empathetic and professional.'
-      },
+      { role: 'system', content: SYSTEM_PROMPT + ' You are a compassionate bereavement counselor providing resource recommendations.' },
       {
         role: 'user',
         content: `Please recommend bereavement resources for someone who:
 Relationship to deceased: ${relationship || 'Not specified'}
 Time since loss: ${time_since_loss || 'Recent'}
 Age group: ${age_group || 'Adult'}
-Specific needs: ${specific_needs || 'General grief support'}
-
-Please provide:
-1. Immediate support resources
-2. Grief counseling recommendations
-3. Support groups
-4. Books and reading resources
-5. Online resources and communities
-6. Self-care recommendations
-7. When to seek professional help`
+Specific needs: ${specific_needs || 'General grief support'}`
       }
     ];
     const result = await callOpenRouter(messages, 1500);
+    await saveAiOutput(req.user.id, 'bereavement', req.body, result);
     res.json({ result, type: 'bereavement' });
   } catch (error) {
     res.status(500).json({ error: error.message });

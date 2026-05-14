@@ -1,17 +1,40 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
+const { defaultRbac } = require('../middleware/roleCheck');
 
 function createCrudRouter(Model, options = {}) {
   const router = express.Router();
   router.use(authMiddleware);
+  router.use(defaultRbac);
 
-  // GET all
+  // GET all — with pagination support (?page=1&limit=20)
   router.get('/', async (req, res) => {
     try {
-      const items = await Model.findAll({
+      const { page, limit = 20, search } = req.query;
+      const findOptions = {
         order: [['id', 'DESC']],
         ...(options.include ? { include: options.include } : {})
-      });
+      };
+
+      if (page) {
+        const pageNum = Math.max(1, Number(page));
+        const limitNum = Math.min(100, Math.max(1, Number(limit)));
+        findOptions.limit = limitNum;
+        findOptions.offset = (pageNum - 1) * limitNum;
+
+        const { count, rows } = await Model.findAndCountAll(findOptions);
+        return res.json({
+          data: rows,
+          pagination: {
+            total: count,
+            page: pageNum,
+            limit: limitNum,
+            total_pages: Math.ceil(count / limitNum)
+          }
+        });
+      }
+
+      const items = await Model.findAll(findOptions);
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: error.message });

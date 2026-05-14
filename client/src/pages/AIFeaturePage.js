@@ -82,7 +82,117 @@ const aiConfig = {
       { name: 'age_group', label: 'Age Group of Bereaved', type: 'select', options: ['Child (under 12)', 'Teen (13-17)', 'Young Adult (18-25)', 'Adult (26-64)', 'Senior (65+)'] },
       { name: 'specific_needs', label: 'Specific Needs or Concerns', type: 'textarea', placeholder: 'e.g., Difficulty sleeping, helping children cope, returning to work...' },
     ]
-  }
+  },
+  // ─── New AI Features ────────────────────────────────────────────────────────
+  'virtual-tour': {
+    title: 'Virtual Cemetery Tour Generator',
+    icon: '\u{1F5FA}',
+    description: 'Create a guided virtual tour script for cemetery plots with historical context.',
+    endpoint: 'virtualTour',
+    isJsonResult: false,
+    fields: [
+      { name: 'cemetery_history', label: 'Cemetery History (JSON or text)', type: 'textarea', required: true,
+        placeholder: '{"founded": 1872, "notable_features": ["Civil War section", "Heritage Oak"]}' },
+      { name: 'plot_locations', label: 'Plot Locations (JSON array)', type: 'textarea', required: true,
+        placeholder: '[{"id":1,"name":"John Smith","section":"A","plot":"12","story":"WWI Veteran"}]' },
+    ],
+    parseFields: ['cemetery_history', 'plot_locations']
+  },
+  'monument-designer': {
+    title: 'Monument Design Assistant',
+    icon: '\u{1FAA8}',
+    description: 'Get monument material/engraving suggestions, costs, and care instructions.',
+    endpoint: 'monumentDesigner',
+    fields: [
+      { name: 'design_preferences', label: 'Design Preferences', type: 'textarea', required: true,
+        placeholder: 'Traditional upright headstone with Celtic cross, family name banner across top, space for two...' },
+      { name: 'budget', label: 'Budget (USD)', type: 'number', required: true, placeholder: '5000' },
+      { name: 'materials_available', label: 'Materials Available (optional)', type: 'textarea',
+        placeholder: 'Granite, marble, bronze' },
+    ],
+  },
+  'burial-site-recommender': {
+    title: 'Burial Site Recommender',
+    icon: '\u{1F44C}',
+    description: 'Rank available plots based on family preferences (budget, view, accessibility).',
+    endpoint: 'burialSiteRecommender',
+    fields: [
+      { name: 'family_requirements', label: 'Family Requirements (text or JSON)', type: 'textarea', required: true,
+        placeholder: 'Budget under $4,000, prefer shaded area, near Veterans section, wheelchair accessible' },
+      { name: 'available_plots', label: 'Available Plots (JSON array)', type: 'textarea', required: true,
+        placeholder: '[{"id":1,"section":"B","row":3,"price":3500,"shade":"partial","veterans_section":true,"adjacent":"family"}]' },
+    ],
+    parseFields: ['available_plots']
+  },
+  'legacy-document-advisor': {
+    title: 'Legacy Document Advisor',
+    icon: '\u{1F4DC}',
+    description: 'Extract life events, themes, and obituary angles from letters, journals, and biographies.',
+    endpoint: 'legacyDocumentAdvisor',
+    fields: [
+      { name: 'documents_text', label: 'Document Text', type: 'textarea', required: true,
+        placeholder: 'Paste the journal/letter/biography excerpt here...' },
+    ],
+  },
+  'family-reunion': {
+    title: 'Family Reunion Organizer',
+    icon: '\u{1F46A}',
+    description: 'Plan family reunion events at the cemetery with itinerary, RSVP fields, and budget.',
+    endpoint: 'familyReunion',
+    fields: [
+      { name: 'surname', label: 'Family Surname', type: 'text', required: true, placeholder: 'Johnson' },
+      { name: 'family_records', label: 'Family Records (JSON array, optional)', type: 'textarea',
+        placeholder: '[{"name":"Robert Johnson","birth":"1928","death":"2010","section":"A"}]' },
+      { name: 'suggested_dates', label: 'Suggested Dates (JSON array, optional)', type: 'textarea',
+        placeholder: '["2024-08-15","2024-09-21"]' },
+      { name: 'attendee_count', label: 'Expected Attendees', type: 'number', placeholder: '40' },
+    ],
+    parseFields: ['family_records', 'suggested_dates']
+  },
+  'perpetual-care-allocation': {
+    title: 'Perpetual Care Fund Allocation',
+    icon: '\u{1F4B0}',
+    description: 'Optimize endowment spending across landscaping, maintenance, capital improvements.',
+    endpoint: 'perpetualCareAllocation',
+    fields: [
+      { name: 'endowment_balance', label: 'Endowment Balance (USD)', type: 'number', required: true, placeholder: '2500000' },
+      { name: 'annual_yield_pct', label: 'Annual Yield %', type: 'number', placeholder: '4.5' },
+      { name: 'inflation_pct', label: 'Inflation %', type: 'number', placeholder: '3.0' },
+      { name: 'projection_years', label: 'Projection Years', type: 'number', placeholder: '25' },
+      { name: 'current_obligations', label: 'Current Obligations (JSON array, optional)', type: 'textarea',
+        placeholder: '[{"category":"landscaping","annual_cost":45000}]' },
+    ],
+    parseFields: ['current_obligations']
+  },
+  'historical-archive': {
+    title: 'Historical Archive Assistant',
+    icon: '\u{1F4DA}',
+    description: 'OCR-extracted text + existing records → entity extraction, duplicates, gaps.',
+    endpoint: 'historicalArchive',
+    fields: [
+      { name: 'document_text', label: 'Document Text (OCR or transcribed)', type: 'textarea', required: true,
+        placeholder: 'Burial register entry: Sept 12, 1894 — Mary Elizabeth Walker, age 47, sec...' },
+      { name: 'existing_records', label: 'Existing Records (JSON array, optional)', type: 'textarea',
+        placeholder: '[{"id":12,"name":"Mary Walker","death_date":"1894-09-10"}]' },
+    ],
+    parseFields: ['existing_records']
+  },
+  'commemorative-event': {
+    title: 'Commemorative Event Planner',
+    icon: '\u{1F56F}',
+    description: 'Plan annual events (Memorial Day, heritage celebrations) with marketing and vendor needs.',
+    endpoint: 'commemorativeEvent',
+    fields: [
+      { name: 'upcoming_anniversaries', label: 'Upcoming Anniversaries (JSON array)', type: 'textarea', required: true,
+        placeholder: '[{"name":"Memorial Day","date":"2024-05-27"},{"name":"100yr Cemetery Anniversary","date":"2024-09-15"}]' },
+      { name: 'event_themes', label: 'Suggested Themes (JSON array)', type: 'textarea',
+        placeholder: '["Veterans Honor","Heritage of Founders","Candlelight Vigil"]' },
+      { name: 'target_audience', label: 'Target Audience', type: 'text',
+        placeholder: 'Veterans families, local community, descendants' },
+      { name: 'budget', label: 'Budget per Event (USD)', type: 'number', placeholder: '5000' },
+    ],
+    parseFields: ['upcoming_anniversaries', 'event_themes']
+  },
 };
 
 function formatAIResponse(text) {
@@ -135,7 +245,25 @@ function AIFeaturePage({ user, onLogout }) {
     setError('');
     setResult(null);
     try {
-      const res = await ai[config.endpoint](formData);
+      const payload = { ...formData };
+      // Parse JSON fields if listed
+      if (config.parseFields) {
+        config.parseFields.forEach(f => {
+          if (typeof payload[f] === 'string' && payload[f].trim()) {
+            const trimmed = payload[f].trim();
+            if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+              try { payload[f] = JSON.parse(trimmed); } catch (_) { /* leave as string */ }
+            }
+          }
+        });
+      }
+      // Coerce numbers
+      config.fields.forEach(f => {
+        if (f.type === 'number' && payload[f.name] !== undefined && payload[f.name] !== '') {
+          payload[f.name] = Number(payload[f.name]);
+        }
+      });
+      const res = await ai[config.endpoint](payload);
       setResult(res.data.result);
     } catch (err) {
       setError(err.response?.data?.error || 'AI request failed. Please check your OpenRouter API key in .env file.');
@@ -235,7 +363,15 @@ function AIFeaturePage({ user, onLogout }) {
               <h3>AI Generated Result</h3>
               <span style={{ marginLeft: 'auto', fontSize: '12px', opacity: 0.8 }}>Powered by Claude Haiku 4.5 via OpenRouter</span>
             </div>
-            <div className="ai-result-body" dangerouslySetInnerHTML={{ __html: formatAIResponse(result) }} />
+            {typeof result === 'object' ? (
+              <div className="ai-result-body">
+                <pre style={{ background: '#f7fafc', padding: 16, borderRadius: 8, overflow: 'auto', maxHeight: 600 }}>
+                  {JSON.stringify(result, null, 2)}
+                </pre>
+              </div>
+            ) : (
+              <div className="ai-result-body" dangerouslySetInnerHTML={{ __html: formatAIResponse(result) }} />
+            )}
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import AIFeaturePage from './pages/AIFeaturePage';
+import AIHistory from './pages/AIHistory';
 import './App.css';
 
 function App() {
@@ -48,6 +49,9 @@ function App() {
           } />
           <Route path="/ai/:aiFeature" element={
             isAuthenticated ? <AIFeaturePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+          } />
+          <Route path="/ai-history" element={
+            isAuthenticated ? <AIHistory user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
           } />
         </Routes>
       </div>

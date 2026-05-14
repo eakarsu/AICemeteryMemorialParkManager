@@ -29,6 +29,15 @@ const aiFeatures = [
   { key: 'genealogy', icon: '\u{1F50D}', title: 'AI Genealogy Assistant', desc: 'AI-powered family history research and record analysis' },
   { key: 'memorial-page', icon: '\u{1F310}', title: 'AI Memorial Page Creator', desc: 'Generate beautiful virtual memorial page content' },
   { key: 'bereavement', icon: '\u{1F49C}', title: 'AI Bereavement Resources', desc: 'Personalized grief support and resource recommendations' },
+  // New AI features
+  { key: 'virtual-tour', icon: '\u{1F5FA}', title: 'Virtual Tour Generator', desc: 'Guided virtual tour script for cemetery plots and history' },
+  { key: 'monument-designer', icon: '\u{1FAA8}', title: 'Monument Design Assistant', desc: 'Materials, engravings, costs, and care instructions for monuments' },
+  { key: 'burial-site-recommender', icon: '\u{1F44C}', title: 'Burial Site Recommender', desc: 'Rank available plots based on family preferences and needs' },
+  { key: 'legacy-document-advisor', icon: '\u{1F4DC}', title: 'Legacy Document Advisor', desc: 'Extract life events and obituary themes from journals and letters' },
+  { key: 'family-reunion', icon: '\u{1F46A}', title: 'Family Reunion Organizer', desc: 'Plan reunions with itinerary, RSVP fields, and budget' },
+  { key: 'perpetual-care-allocation', icon: '\u{1F4B0}', title: 'Perpetual Care Allocation', desc: 'Optimize endowment spending across categories with projections' },
+  { key: 'historical-archive', icon: '\u{1F4DA}', title: 'Historical Archive Assistant', desc: 'Extract entities, link records, find duplicates from documents' },
+  { key: 'commemorative-event', icon: '\u{1F56F}', title: 'Commemorative Event Planner', desc: 'Plan annual events with marketing copy and vendor lists' },
 ];
 
 function Dashboard({ user, onLogout }) {
@@ -62,6 +71,12 @@ function Dashboard({ user, onLogout }) {
               <div className="card-description">{f.desc}</div>
             </div>
           ))}
+          <div className="feature-card" onClick={() => navigate('/ai-history')}>
+            <span className="card-badge">HISTORY</span>
+            <div className="card-icon">&#128450;</div>
+            <div className="card-title">AI Run History</div>
+            <div className="card-description">Paginated history of all AI requests, filterable by type.</div>
+          </div>
         </div>
 
         <div className="section-title">
