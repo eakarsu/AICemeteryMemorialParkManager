@@ -7,6 +7,11 @@ import AIFeaturePage from './pages/AIFeaturePage';
 import AIHistory from './pages/AIHistory';
 import './App.css';
 
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -38,6 +43,10 @@ function App() {
     <Router>
       <div className="app">
         <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
           <Route path="/login" element={
             isAuthenticated ? <Navigate to="/" /> : <LoginPage onLogin={handleLogin} />
           } />
