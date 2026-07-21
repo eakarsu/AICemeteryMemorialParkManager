@@ -1,0 +1,6 @@
+'use strict';const test=require('node:test');const assert=require('node:assert/strict');const {validateCase,transition}=require('../domain/caseWorkflow');
+const valid=()=>({caseNumber:'CASE-26-001',deceasedLegalName:'Recorded Person',identityEvidence:[{type:'vital-record'},{type:'facility-tag'}],authorizations:[{type:'disposition'}],pricing:{totalCents:500000,disclosed:true},plotIdentity:{plot:'A-1'},schedule:{startsAt:'2026-08-01T10:00:00Z'}});
+test('requires independent identity evidence',()=>assert.throws(()=>validateCase({...valid(),identityEvidence:[{}]}),/two independent/));
+test('authorization is role and evidence gated',()=>{const c=validateCase(valid());assert.throws(()=>transition('identity_verified','authorized','staff',c,'documents checked'),/approval/);assert.equal(transition('identity_verified','authorized','manager',c,'documents checked against originals'),'authorized');});
+test('schedule requires plot/remains identity',()=>assert.throws(()=>transition('authorized','scheduled','manager',{...validateCase(valid()),plotIdentity:null},'ok'),/identity/));
+test('reconciliation requires pricing disclosure',()=>assert.throws(()=>transition('services_complete','reconciled','manager',{...validateCase(valid()),pricing:{totalCents:1,disclosed:false}},'ok'),/disclosure/));

@@ -1,4 +1,5 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+require('./config/runtime').validateRuntime();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -67,6 +68,7 @@ app.use('/api/payment-plans', createCrudRouter(models.PaymentPlan));
 app.use('/api/cremation-niches', createCrudRouter(models.CremationNiche));
 app.use('/api/veteran-records', createCrudRouter(models.VeteranRecord));
 app.use('/api/deed-transfers', createCrudRouter(models.DeedTransfer));
+app.use('/api/governed-cases', require('./routes/governedCases'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -77,8 +79,7 @@ async function start() {
   try {
     await sequelize.authenticate();
     console.log('✓ Database connected');
-    await sequelize.sync();
-    console.log('✓ Models synced');
+    // Schema changes are applied explicitly with scripts/migrate.sh.
     
 app.use('/api/memorial-concierge', require('./routes/memorialConcierge')); // apply pass 6 — audit custom suggestion
 
@@ -97,17 +98,3 @@ app.listen(PORT, () => {
 }
 
 start();
-
-
-// === Batch 01 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-ai-plot-grave-availability-optimization', require('./routes/gap_no_ai_plot_grave_availability_optimization'));
-app.use('/api/gap-no-ai-grief-support-chatbot-for-families', require('./routes/gap_no_ai_grief_support_chatbot_for_families'));
-app.use('/api/gap-no-ai-restoration-estimate-from-headstone-photos', require('./routes/gap_no_ai_restoration_estimate_from_headstone_photos'));
-app.use('/api/gap-no-ai-memorial-video-generation', require('./routes/gap_no_ai_memorial_video_generation'));
-app.use('/api/gap-no-ai-obituary-auto-generation-from-intake-form', require('./routes/gap_no_ai_obituary_auto_generation_from_intake_form'));
-app.use('/api/gap-only-5-frontend-pages-despite-24-crud-entities-maj', require('./routes/gap_only_5_frontend_pages_despite_24_crud_entities_maj'));
-app.use('/api/gap-no-gis-interactive-plot-map', require('./routes/gap_no_gis_interactive_plot_map'));
-app.use('/api/gap-no-webhook-outbound-api', require('./routes/gap_no_webhook_outbound_api'));
-app.use('/api/gap-no-payment-gateway-integration-for-pre-need-contra', require('./routes/gap_no_payment_gateway_integration_for_pre_need_contra'));
-app.use('/api/gap-no-public-facing-memorial-page-builder', require('./routes/gap_no_public_facing_memorial_page_builder'));
-app.use('/api/gap-no-funeral-home-coroner-system-integration', require('./routes/gap_no_funeral_home_coroner_system_integration'));
