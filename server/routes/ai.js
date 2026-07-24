@@ -9,6 +9,7 @@ router.use(authMiddleware);
 router.use(aiRateLimiter);
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022';
+const OPENROUTER_BASE_URL = (process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/$/, '');
 const SYSTEM_PROMPT = 'You are a compassionate memorial park management AI assistant. Help with obituary writing, memorial planning, and cemetery operations with dignity and professionalism.';
 
 // ─── AI Output persistence model (lazy-defined) ──────────────────────────────
@@ -31,7 +32,6 @@ function getAiOutputModel() {
     tableName: 'ai_outputs',
     timestamps: false
   });
-  sequelize.sync(); // ensure table exists
   return AiOutput;
 }
 
@@ -41,7 +41,7 @@ async function callOpenRouter(messages, maxTokens = 1024) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   const model = OPENROUTER_MODEL;
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -64,6 +64,7 @@ async function callOpenRouter(messages, maxTokens = 1024) {
 async function saveAiOutput(userId, type, inputData, outputText) {
   try {
     const Model = getAiOutputModel();
+    await Model.sync();
     await Model.create({
       user_id: userId,
       type,
