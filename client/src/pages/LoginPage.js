@@ -39,7 +39,7 @@ function LoginPage({ onLogin }) {
         {error && <div className="login-error">{error}</div>}
 
         <button className="btn btn-fill-credentials" onClick={fillCredentials} type="button">
-          &#128273; Auto-Fill Login Credentials
+          Auto Fill Demo Credentials
         </button>
 
         <form onSubmit={handleSubmit}>
