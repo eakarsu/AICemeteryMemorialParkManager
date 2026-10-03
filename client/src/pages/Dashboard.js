@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const features = [
+export const features = [
   { key: 'plots', icon: '\u{1F5FA}', title: 'Plot Inventory & Map', desc: 'Manage sections, rows, and plot availability with interactive mapping' },
   { key: 'burial-records', icon: '\u{1F4DC}', title: 'Burial Records', desc: 'Complete database of all burial records and deceased information' },
   { key: 'deeds', icon: '\u{1F4C4}', title: 'Deed & Ownership', desc: 'Track plot ownership, deed documentation, and transfers' },
@@ -22,7 +22,7 @@ const features = [
   { key: 'deed-transfers', icon: '\u{1F501}', title: 'Deed Transfers', desc: 'Process ownership transfers, inheritance, and deed changes' },
 ];
 
-const aiFeatures = [
+export const aiFeatures = [
   { key: 'obituary', icon: '\u{1F4DD}', title: 'AI Obituary Writer', desc: 'Generate professional, heartfelt obituaries with AI assistance' },
   { key: 'inscription', icon: '\u{1F4AC}', title: 'AI Inscription Suggestions', desc: 'Get meaningful memorial inscription ideas for monuments' },
   { key: 'maintenance-prediction', icon: '\u{1F327}', title: 'AI Maintenance Predictor', desc: 'Weather-based grounds maintenance predictions and scheduling' },

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import AIFeaturePage from './pages/AIFeaturePage';
 import AIHistory from './pages/AIHistory';
+import AppSidebar from './components/AppSidebar';
 import './App.css';
 
 import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
@@ -41,7 +42,8 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
+      <div className={isAuthenticated ? 'app codex-nav-shell' : 'app'}>
+        {isAuthenticated && <AppSidebar />}
         <Routes>
         <Route path="/insights/timeline" element={<TimelineView />} />
         <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
